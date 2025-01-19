@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import {Link} from 'react-router-dom'
+import {Link, useNavigate} from 'react-router-dom'
 import axios from 'axios'
 
 const Register = () => {
@@ -8,6 +8,8 @@ const Register = () => {
         password: '',
     })
 
+    const navigate = useNavigate()
+
     const handleChange = (event) => {
         setValues({...values, [event.target.name]:event.target.value})
     }
@@ -15,8 +17,10 @@ const Register = () => {
     const handleSubmit = async (event) => {
         event.preventDefault()
         try {
-            const response = await axios.post('http://localhost:3000/auth/register', values)
-            console.log(response)
+            const response = await axios.post('http://localhost:3001/auth/register', values)
+            if(response.status === 201){
+                navigate('/login')
+            }
         } catch (error) {
             console.log(error)
         }

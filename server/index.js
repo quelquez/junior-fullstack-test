@@ -7,6 +7,6 @@ app.use(cors())
 app.use(express.json())
 app.use('/auth', authRouter)
 
-app.listen(process.env.DB_PORT, () => {
-    console.log("Server is running..")
+app.listen(process.env.PORT, () => {
+    console.log("Server is running.." + process.env.PORT)
 })
