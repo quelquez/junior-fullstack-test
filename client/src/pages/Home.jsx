@@ -1,9 +1,32 @@
-import React from 'react'
+import React, { useEffect } from "react";
+import axios from "axios";
+import { useNavigate } from 'react-router-dom'
 
 const Home = () => {
-  return (
-    <div className='text-3xl'>Home</div>
-  )
-}
+  const navigate = useNavigate();
+  const fetchUser = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get("http://localhost:3001/auth/home", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-export default Home
+      if(response.status !== 201){
+        navigate('/login')
+      }
+
+    } catch (error) {
+      console.log(error);
+      navigate('/login')
+    }
+  };
+
+  useEffect(() => {
+    fetchUser();
+  }, []);
+  return <div className="text-3xl">Home</div>;
+};
+
+export default Home;
