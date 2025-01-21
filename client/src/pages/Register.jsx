@@ -8,7 +8,6 @@ const Register = () => {
     const [statusMessage, setStatusMessage] = useState ('');
     const [messageType, setMessageType] = useState('');
 
-    const apiUrl = process.env.API_BASE_URL;
     const navigate = useNavigate();
 
     const handleChange = (e) => {
@@ -47,11 +46,11 @@ const Register = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post(`${apiUrl}/auth/register`, values);
+            const response = await axios.post('http://localhost:3003/auth/register', values);
             if(response.status === 201){
                 setMessageType('success');
                 setStatusMessage(response.data.message);
-                setTimeout(() => navigate('/login'), 1500);
+                setTimeout(() => navigate('/'), 1500);
             }
         } catch (error) {
             if (error.response && error.response.data.message){
@@ -93,6 +92,7 @@ const Register = () => {
               name="password"
               value={values.password}
               onChange={handleChange}
+              autoComplete="new-password"
             />
             {fieldErrors.password && ( <p className="text-red-500 text-sm">{fieldErrors.password}</p> )}
           </div>

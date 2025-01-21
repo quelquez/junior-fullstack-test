@@ -7,7 +7,7 @@ const Home = () => {
   const fetchUser = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get("http://localhost:3001/auth/home", {
+      const response = await axios.get("http://localhost:3003/auth/home", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -18,14 +18,12 @@ const Home = () => {
       }
 
     } catch (error) {
-      console.log(error);
-      navigate('/login')
+      navigate('/login');
     }
   };
 
-  useEffect(() => {
-    fetchUser();
-  }, []);
+  useEffect(() => {fetchUser();}, []);
+
   return <div className="text-3xl">Home</div>;
 };
 

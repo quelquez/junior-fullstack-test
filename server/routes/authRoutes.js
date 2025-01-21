@@ -12,7 +12,7 @@ router.post('/register', async (req, res) => {
         const [rows] = await db.query('SELECT * FROM users WHERE email = ?', [email])
 
         if(rows.length > 0){
-            return res.status(409).json({message: "User already exists"})
+            return res.status(409).json({message: "User already exist"})
         }
 
         const hashPassword = await bcrypt.hash(password, 10)
@@ -33,7 +33,7 @@ router.post('/login', async (req, res) => {
         const [rows] = await db.query('SELECT * FROM users WHERE email = ?', [email])
 
         if(rows.length === 0){
-            return res.status(404).json({message: "User not exists"})
+            return res.status(404).json({message: "User not exist"})
         }
 
         const isMatch = await bcrypt.compare(password, rows[0].password)
