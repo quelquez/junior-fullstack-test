@@ -92,15 +92,15 @@ const Login = () => {
             type="submit" 
             className={`mb-4 w-full py-2 ${!isFormValid() ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-200'}`} 
             disabled={!isFormValid()}
-            >Submit</button>
+            >Submit
+            </button>
+
         </form>
 
         <div className="text-center">
           <span>Don't have an account?</span>
 
-          <Link to="/register" className="text-gray-800">
-            Register
-          </Link>
+          <Link to="/register" className="text-gray-800"> Register</Link>
 
         </div>
       </div>
