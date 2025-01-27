@@ -2,10 +2,49 @@ import express from 'express'
 import {connectToDatabase} from '../lib/db.js'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
+import svgCaptcha from 'svg-captcha'
 
 const router = express.Router()
 
-router.post('/register', async (req, res) => {
+router.get('/captcha', async (req, res) => {
+    const captcha = svgCaptcha.create({
+        size: 4,
+        noise: 3,
+        background: '#cc9966' 
+    });
+
+    const captchaToken = jwt.sign(
+        { captcha: captcha.text },
+        process.env.JWT_KEY,
+        { expiresIn: '5m' }
+    );
+
+	res.status(200).json({
+        captcha: captcha.data,
+        token: captchaToken,
+    });
+
+    console.log('Captcha text:', captcha.text)
+})
+
+const verifyCaptcha = async (req, res, next) => {
+    const {captchaToken, captchaInput} = req.body;
+    if (!captchaToken || !captchaInput) {
+        return res.status(400).json({ message: 'Captcha token and input are required' });
+    }
+    try {
+        const decoded = jwt.verify(captchaToken, process.env.JWT_KEY);
+
+        if (decoded.captcha.toLowerCase() !== captchaInput.toLowerCase()) {
+            return res.status(400).json({ message: 'Captcha verification failed' });
+        }
+        next();
+    } catch (error) {
+        return res.status(400).json({ message: 'Invalid or expired captcha token' });
+    }
+ }
+
+router.post('/register', verifyCaptcha, async (req, res) => {
     const {email, password} = req.body;
     try {
         const db = await connectToDatabase()
@@ -24,7 +63,6 @@ router.post('/register', async (req, res) => {
         res.status(500).json(error)
     }
 })
-
 
 router.post('/login', async (req, res) => {
     const {email, password} = req.body;
@@ -53,7 +91,7 @@ const verifyToken = async (req, res, next) => {
     try {
         const token = req.headers['authorization'].split(' ')[1];
         if(!token){
-            return res.status(403).json({message: 'No token proveded'})
+            return res.status(403).json({message: 'No token provided'})
         }
         const decoded = jwt.verify(token, process.env.JWT_KEY);
         req.userId = decoded.id;
@@ -77,7 +115,6 @@ router.get('/home', verifyToken, async (req, res) => {
     } catch (error) {
         return res.status(500).json({messsage: "Server error"})
     }
-
 })
 
 export default router;
