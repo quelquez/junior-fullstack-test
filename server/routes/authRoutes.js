@@ -30,7 +30,7 @@ router.get('/captcha', async (req, res) => {
 const verifyCaptcha = async (req, res, next) => {
     const {captchaToken, captchaInput} = req.body;
     if (!captchaToken || !captchaInput) {
-        return res.status(400).json({ message: 'Captcha token and input are required' });
+        return res.status(400).json({ message: 'Captcha required' });
     }
     try {
         const decoded = jwt.verify(captchaToken, process.env.JWT_KEY);
@@ -40,7 +40,7 @@ const verifyCaptcha = async (req, res, next) => {
         }
         next();
     } catch (error) {
-        return res.status(400).json({ message: 'Invalid or expired captcha token' });
+        return res.status(400).json({ message: 'Invalid or expired captcha token. Try again' });
     }
  }
 
@@ -64,7 +64,7 @@ router.post('/register', verifyCaptcha, async (req, res) => {
     }
 })
 
-router.post('/login', async (req, res) => {
+router.post('/login', verifyCaptcha, async (req, res) => {
     const {email, password} = req.body;
     try {
         const db = await connectToDatabase()

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {Link, useNavigate} from 'react-router-dom'
 import axios from 'axios'
 
@@ -7,9 +7,26 @@ const Login = () => {
     const [fieldErrors, setFieldErrors] = useState({email: '', password: ''});
     const [statusMessage, setStatusMessage] = useState ('');
     const [messageType, setMessageType] = useState('');
+    const [captchaValue, setCaptchaValue] = useState('');
+    const [captchaImage, setCaptchaImage] = useState('');
+    const [captchaToken, setCaptchaToken] = useState('');
 
     const navigate = useNavigate()
 
+    const fetchCaptcha = async () => {
+      try {
+        const response = await axios.get('http://localhost:3003/auth/captcha');
+        setCaptchaImage(response.data.captcha);
+        setCaptchaToken(response.data.token);
+  
+      } catch (error) {
+        console.error('Error fetching captcha:', error);
+        setMessageType('error');
+        setStatusMessage('Failed to load captcha. Please try again.');
+      }
+    };
+  
+    useEffect(()=>{fetchCaptcha()}, []);
     const handleChange = (e) => {
         const { name, value } = e.target;
         setValues({...values, [name]:value});
@@ -32,7 +49,7 @@ const Login = () => {
     const handleSubmit = async (e) => {
         e.preventDefault()
         try {
-            const response = await axios.post('http://localhost:3003/auth/login', values)
+            const response = await axios.post('http://localhost:3003/auth/login', {...values, captchaToken, captchaInput: captchaValue,})
             if(response.status === 201){
                 setMessageType('success');
                 setStatusMessage(response.data.message);
@@ -85,6 +102,25 @@ const Login = () => {
               autoComplete="current-password"
             />
           </div>
+
+          <div>
+            <label htmlFor="captcha" className="block text-gray-700">Captcha</label>
+            <div dangerouslySetInnerHTML={{ __html: captchaImage }} />
+            <button 
+              type="button" 
+              className='mb-4 text-gray-700' 
+              onClick={fetchCaptcha}>Refresh</button>
+              <input
+                type="text"
+                id="captcha"
+                placeholder="Enter the captcha"
+                className= 'mb-4 w-full px-3 py-2 border'
+                name="captchaInput"
+                value={captchaValue}
+                onChange={(e) => setCaptchaValue(e.target.value)}
+              />
+          </div>
+
 
           {statusMessage && <p className={`mb-4 ${messageType === 'error' ? 'text-red-500' : 'text-green-500'}`}>{statusMessage}</p>}
 
